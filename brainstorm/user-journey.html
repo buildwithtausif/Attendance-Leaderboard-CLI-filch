@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filch CLI: A User Journey Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #581845;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            max-height: 50vh;
+        }
+        .terminal-style {
+            background-color: #1E293B;
+            border: 1px solid #475569;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .terminal-style::before {
+            content: '$ ';
+            color: #FFC300;
+        }
+        .success-output::before {
+            content: '✓ ';
+            color: #4ade80;
+        }
+        .info-output::before {
+            content: '→ ';
+            color: #60a5fa;
+        }
+
+        /* --- Print Styles --- */
+        @media print {
+            /* Force browser to print backgrounds and colors */
+            /* The two invalid lines that were here have been removed. */
+
+            /* Set base print styles */
+            body {
+                background-color: #581845 !important;
+                color: #e5e7eb !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Remove shadows and blurs, which don't print well */
+            .shadow-2xl, .shadow-lg {
+                box-shadow: none !important;
+            }
+            .backdrop-blur-sm {
+                backdrop-filter: none !important;
+            }
+
+            /* Force card backgrounds */
+            .bg-slate-900\/50 {
+                background-color: rgba(15, 23, 42, 0.5) !important;
+            }
+            .bg-slate-800 {
+                background-color: #1e293b !important;
+            }
+            .terminal-style {
+                background-color: #1E293B !important;
+                border-color: #475569 !important;
+            }
+            
+            /* Force text colors */
+            .text-white { color: #fff !important; }
+            .text-amber-300 { color: #fcd34d !important; }
+            .text-amber-400 { color: #facc15 !important; }
+            .text-gray-200 { color: #e5e7eb !important; }
+            .text-gray-400 { color: #9ca3af !important; }
+            .text-green-400 { color: #4ade80 !important; }
+            .text-yellow-400 { color: #facc15 !important; }
+            .text-amber-300 { color: #fcd34d !important; }
+
+            /* Force terminal pseudo-element colors */
+            .terminal-style::before {
+                color: #FFC300 !important;
+            }
+
+            /* Ensure layout is not constrained by screen-only classes */
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            
+            /* Ensure chart containers have a good print size */
+            .chart-container {
+                height: 350px !important;
+                max-height: 350px !important;
+                page-break-inside: avoid;
+            }
+
+            /* Avoid breaking sections across pages */
+            section, .bg-slate-800, .grid > * {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-200">
+
+    <!-- Sunset Tones Palette: #FFC300, #FF5733, #C70039, #900C3F, #581845 -->
+    <!-- NEITHER Mermaid JS NOR SVG were used in this file. All diagrams are HTML/CSS and all charts use the Canvas API via Chart.js. -->
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <!-- Header -->
+        <header class="text-center mb-16">
+            <h1 class="text-5xl md:text-7xl font-black text-white mb-4">The Filch CLI</h1>
+            <p class="text-xl md:text-2xl text-amber-300">A User Journey: From Setup to Leaderboard</p>
+            <p class="text-lg text-gray-400 mt-2 max-w-3xl mx-auto">This infographic visualizes a teacher's 5-day workflow using a powerful command-line tool designed for efficient attendance tracking.</p>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="space-y-16">
+
+            <!-- Section 1: Day 0 - Setup -->
+            <section id="setup">
+                <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8 border border-white/10">
+                    <h2 class="text-4xl font-bold text-amber-400 mb-2">Phase 1: Day 0 - The Setup</h2>
+                    <p class="text-gray-400 mb-8 max-w-3xl">Before tracking attendance, Professor Tausif performs a quick, one-time setup to create his classes and add his students in bulk, laying the foundation for the week.</p>
+                    
+                    <div class="flex flex-col md:flex-row md:space-x-8 space-y-8 md:space-y-0 items-center">
+                        <div class="w-full md:w-1/2 flex flex-col space-y-4">
+                            <div class="terminal-style p-4 rounded-lg">filch create class "10-A"</div>
+                            <div class="self-center text-amber-400 text-2xl font-bold">↓</div>
+                            <div class="terminal-style p-4 rounded-lg">filch create class "10-B"</div>
+                             <div class="self-center text-amber-400 text-2xl font-bold">↓</div>
+                            <div class="terminal-style p-4 rounded-lg">filch insert into "10-A" --rolls "[1,2,3]" --names '["Rohan", "Anya", "Zoya"]'</div>
+                        </div>
+                        <div class="w-full md:w-1/2 p-6 bg-slate-800 rounded-lg border border-slate-700">
+                             <h3 class="text-2xl font-bold mb-4 text-white">Setup Workflow</h3>
+                             <p class="text-gray-300">This simple, sequential process prepares the entire system in minutes. The key steps are:</p>
+                             <ul class="list-disc list-inside mt-4 space-y-2 text-gray-400">
+                                <li><strong class="text-amber-300">Create Classes:</strong> Professor Tausif establishes the containers for his student rosters, "10-A" and "10-B".</li>
+                                <li><strong class="text-amber-300">Bulk Insert Students:</strong> Using a single, powerful command, he populates an entire class roster by providing lists of roll numbers and names. This saves significant time over manual, one-by-one entry.</li>
+                             </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Daily Workflow -->
+            <section id="workflow">
+                <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8 border border-white/10">
+                    <h2 class="text-4xl font-bold text-amber-400 mb-2">Phase 2: The Daily Workflow</h2>
+                    <p class="text-gray-400 mb-8 max-w-3xl">For the next 5 days, the professor follows a simple, repeatable 3-step process to track attendance for each of his classes.</p>
+
+                     <div class="relative flex flex-col items-center p-4">
+                        <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-slate-700 rounded-full hidden md:block"></div>
+                        
+                        <div class="relative w-full bg-slate-800 p-6 rounded-xl border border-amber-400/50 shadow-lg mb-8 md:w-3/4 z-10">
+                            <div class="md:absolute top-1/2 -left-4 transform -translate-y-1/2 w-8 h-8 bg-amber-400 rounded-full border-4 border-slate-900 hidden md:block"></div>
+                            <h3 class="text-xl font-bold text-amber-400">Step 1: Start a New Day</h3>
+                            <p class="text-gray-400 mt-2">Each morning begins with the `start newday` command, which prepares the system to log attendance for the current date.</p>
+                            <div class="terminal-style p-3 rounded-md mt-3 text-sm">filch start newday</div>
+                        </div>
+
+                        <div class="relative w-full bg-slate-800 p-6 rounded-xl border border-amber-400/50 shadow-lg mb-8 md:w-3/4 z-10">
+                             <div class="md:absolute top-1/2 -left-4 transform -translate-y-1/2 w-8 h-8 bg-amber-400 rounded-full border-4 border-slate-900 hidden md:block"></div>
+                            <h3 class="text-xl font-bold text-amber-400">Step 2: Select the Class</h3>
+                            <p class="text-gray-400 mt-2">Before taking attendance, he selects the active class. The tool remembers this choice for subsequent commands.</p>
+                             <div class="terminal-style p-3 rounded-md mt-3 text-sm">filch select class "10-A"</div>
+                        </div>
+
+                        <div class="relative w-full bg-slate-800 p-6 rounded-xl border border-amber-400/50 shadow-lg md:w-3/4 z-10">
+                             <div class="md:absolute top-1/2 -left-4 transform -translate-y-1/2 w-8 h-8 bg-amber-400 rounded-full border-4 border-slate-900 hidden md:block"></div>
+                            <h3 class="text-xl font-bold text-amber-400">Step 3: Mark Attendance</h3>
+                            <p class="text-gray-400 mt-2">He marks each student by their unique roll number as Present (P) or Absent (A).</p>
+                             <div class="terminal-style p-3 rounded-md mt-3 text-sm">filch mark 1 P</div>
+                             <div class="terminal-style p-3 rounded-md mt-2 text-sm">filch mark 2 A</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 3: The Results -->
+            <section id="results">
+                <div class="bg-slate-900/50 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8 border border-white/10">
+                     <h2 class="text-4xl font-bold text-amber-400 mb-2">Phase 3: The Report</h2>
+                     <p class="text-gray-400 mb-8 max-w-3xl">After 5 days of tracking, Professor Tausif runs the `leaderboard` command on the selected class to instantly see the final results and student rankings.</p>
+                     
+                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        <!-- Left side: KPI cards and Stacked Bar Chart -->
+                        <div class="space-y-8">
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                                    <div class="text-4xl font-black text-amber-400">2</div>
+                                    <div class="text-sm text-gray-400">Classes Managed</div>
+                                </div>
+                                 <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                                    <div class="text-4xl font-black text-amber-400">3</div>
+                                    <div class="text-sm text-gray-400">Students in 10-A</div>
+                                </div>
+                                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                                    <div class="text-4xl font-black text-amber-400">5</div>
+                                    <div class="text-sm text-gray-400">Days Tracked</div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                                <h3 class="text-xl font-bold text-white mb-4">5-Day Attendance Breakdown</h3>
+                                <p class="text-sm text-gray-400 mb-4">This chart shows the composition of each student's attendance over the week, comparing present vs. absent days.</p>
+                                <div class="chart-container">
+                                    <canvas id="attendanceBreakdownChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right side: Leaderboard chart and table -->
+                        <div class="bg-slate-800 p-6 rounded-lg border border-slate-700">
+                             <h3 class="text-xl font-bold text-white mb-4">Final Leaderboard Rankings</h3>
+                             <p class="text-sm text-gray-400 mb-4">The final leaderboard ranks students by their attendance percentage, providing a clear view of the most regular students.</p>
+                             <div class="chart-container">
+                                <canvas id="leaderboardChart"></canvas>
+                             </div>
+                             <div class="mt-8 overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="border-b border-slate-600">
+                                            <th class="p-2 text-amber-300">Rank</th>
+                                            <th class="p-2 text-amber-300">Student</th>
+                                            <th class="p-2 text-amber-300">Score</th>
+                                            <th class="p-2 text-amber-300">Percentage</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b border-slate-700">
+                                            <td class="p-2 font-bold">#1</td>
+                                            <td class="p-2">Rohan (Roll: 1)</td>
+                                            <td class="p-2">5/5</td>
+                                            <td class="p-2 font-bold text-green-400">100%</td>
+                                        </tr>
+                                         <tr class="border-b border-slate-700">
+                                            <td class="p-2 font-bold">#1</td>
+                                            <td class="p-2">Zoya (Roll: 3)</td>
+                                            <td class="p-2">5/5</td>
+                                            <td class="p-2 font-bold text-green-400">100%</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 font-bold">#3</td>
+                                            <td class="p-2">Anya (Roll: 2)</td>
+                                            <td class="p-2">4/5</td>
+                                            <td class="p-2 font-bold text-yellow-400">80%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                             </div>
+                        </div>
+                     </div>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const tooltipTitleCallback = {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                } else {
+                                  return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            
+            // Chart 1: Attendance Breakdown (Stacked Bar)
+            const attendanceBreakdownCtx = document.getElementById('attendanceBreakdownChart').getContext('2d');
+            new Chart(attendanceBreakdownCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Rohan', 'Anya', 'Zoya'],
+                    datasets: [{
+                        label: 'Present Days',
+                        data: [5, 4, 5],
+                        backgroundColor: '#FFC300',
+                        borderColor: '#FF5733',
+                        borderWidth: 1
+                    }, {
+                        label: 'Absent Days',
+                        data: [0, 1, 0],
+                        backgroundColor: '#900C3F',
+                        borderColor: '#C70039',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...tooltipTitleCallback,
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: { color: '#cbd5e1' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: {
+                                color: '#cbd5e1',
+                                stepSize: 1
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    },
+                    plugins: {
+                        ...tooltipTitleCallback.plugins,
+                        legend: {
+                            labels: {
+                                color: '#cbd5e1'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Leaderboard Rankings (Horizontal Bar)
+            const leaderboardCtx = document.getElementById('leaderboardChart').getContext('2d');
+            const leaderboardData = [
+                { name: 'Rohan', percentage: 100 },
+                { name: 'Zoya', percentage: 100 },
+                { name: 'Anya', percentage: 80 }
+            ];
+            // Data is pre-sorted for an ordered bar chart
+            leaderboardData.sort((a, b) => b.percentage - a.percentage);
+
+            new Chart(leaderboardCtx, {
+                type: 'bar',
+                data: {
+                    labels: leaderboardData.map(s => s.name),
+                    datasets: [{
+                        label: 'Attendance Percentage',
+                        data: leaderboardData.map(s => s.percentage),
+                        backgroundColor: ['#FFC300', '#FFC300', '#FF5733'],
+                        borderColor: '#C70039',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...tooltipTitleCallback,
+                    indexAxis: 'y',
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                color: '#cbd5e1',
+                                callback: function(value) {
+                                    return value + '%'
+                                }
+                             },
+                             grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#cbd5e1' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                         ...tooltipTitleCallback.plugins,
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
