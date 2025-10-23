@@ -1,0 +1,23 @@
+{
+  "name": "filch-cli",
+  "version": "1.0.0",
+  "description": "A terminal CLI tool to log attendance and display a leaderboard. The name is inspired from Argus Filch - caretaker at Hogwarts",
+  "main": "filch.js",
+  "type": "commonjs",
+  "bin": {
+    "filch": "./filch.js"
+  },
+  "scripts": {
+    "start": "node filch.js"
+  },
+  "keywords": [
+    "filch",
+    "attendance",
+    "leaderboard",
+    "cli",
+    "terminal"
+  ],
+  "author": "Tausif Alam",
+  "license": "MIT"
+}
+
