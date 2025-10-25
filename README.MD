@@ -16,6 +16,8 @@ All data is stored locally in a `data/db.json` file, making it portable and easy
     * Defaults to the current date but allows custom date entry (YYYY-MM-DD).
 * **View Leaderboard:** Calculates and displays the top 3 students based on their attendance percentage over the last 5 days.
 * **Local JSON Database:** All data is stored in a human-readable `db.json` file.
+## Check a Video Preview here
+[![Watch The video](brainstorm/video_thumb.png)](https://streamable.com/mzg0r1)
 
 ## Setup and Installation
 
