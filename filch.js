@@ -169,118 +169,68 @@ function insertStudents() {
     process.exit(1);
   }
 }
-// start a newday function before marking attendance, after selecting a class
-function newDay(userProvidedDate) {
-  // load data to memory
-  const data = loadData();
-  // extract class for which it's a new day
-  const cls =
-    data.config.currentClass !== null
-      ? data.config.currentClass
-      : console.log("You've not selected any class!"); // note: this should come from config object
-  // get the class object
-  const classObj = data.classes[cls];
-  // need to check if cls or classObj exists
-  if (!cls) {
-    console.log(`${cls} does not exists`);
-    console.log("use: filch create class <classNameSection>");
-    process.exit();
-  }
-  if (!classObj) {
-    console.log(`${cls} is empty, insert students into this class`);
-    console.log("use: filch insert into class <classNameSection>");
-    process.exit();
-  }
-  // if both check is passed that means both cls and classObj exists therefore start a new day
-  let theDate;
-  if (!userProvidedDate) {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // in js is 0 indexed
-    const day = now.getDate();
-    theDate = `${year}-${month}-${day}`; // formatted date string YYYY-MM-DD
-  } else {
-    // to ensure if the userProvided date is in YYYY-MM-DD format
-    // we can simply check for our date scheme if not matches we'll prompt the user to give date in out format
-    const dateRegEx = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/; // strict checking for YYYY-MM-DD format
-    if (!dateRegEx.test(userProvidedDate)) {
-      console.log("Please provide date in YYYY-MM-DD fromat");
-      console.log(
-        "use: filch start newday <date>\ntip: <date> is optional if left empty filch checks the calender to get current date"
-      );
-      process.exit(1);
-    }
-  }
-  // we should only use the date if the user have not provided any date
-  for (let i = 0; i < classObj.students.length; i++) {
-    // this ensures if user have not provided any date it will insert theDate or if provided use userProvidedDate
-    console.log(theDate);
-    classObj.students[i].attendance.push(
-      {date: !userProvidedDate ? theDate : userProvidedDate}
-    );
-  }
-  saveData(data);
-  process.exit(0);
-}
-// after inserting students into that class , mark attendance
 function markAttendance(customDate) {
-  // mark attendance for which day? newDay or old Day? what if old day ?
-  // and how would someone identify new day?
-  // new day identification --
-  /*
-    newDay can be identified by filtering out every date that is != current day (default: mark-attendance matches the current date in dateObject)
-    but, 
-    if say we want to mark attendance for a day which is in past 
-    use customDate <YYYY-MM-DD> save this inside config object
-    and execute readline 
-
-    marking attendance for _____
-    mark (roll) (name) [A/P]: P
-    loop till length of students has reached
-*/
-  // load data to memory
   const data = loadData();
-  // extract class for which to mark attendance
-  const cls = data.config.currentClass !== null ? data.config.currentClass : console.log("You've not selected any class!"); // note: this should come from config object
-  // get the class object
+  const cls = data.config.currentClass;
   const classObj = data.classes[cls];
-  // by default match that col where it matches current date in YYYY-MM-DD format
+  console.log(`classObject: `, classObj);
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1; // in js is 0 indexed
   const day = now.getDate();
-  const crrDate = `${year}-${month}-${day}`; // formatted date string YYYY-MM-DD
-  const dateRegEx = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/; // strict checking for YYYY-MM-DD format
-  if (customDate) {
-    if (!dateRegEx.test(customDate)) {
-      console.log("invalid date provided, use YYYY-MM-DD format");
-      process.exit(1);
-    }
-  }
-  // match crrDate or customDate with the date object inside db.json
-  try {
-    const dateKey = customDate || crrDate;
-    console.log(classObj.students.length);
-    /*
-    [
-        { roll: '1', name: 'Atisha', attendance: [ [Object] ] },
-        { roll: '2', name: 'Tausif', attendance: [ [Object] ] }
-    ]
-    */
-    let index = 0;
-    while (index < classObj.students.length) {
-        rl.question(`Mark attendance for ${classObj.students[index].name} Roll no: ${classObj.students[index].roll}: `, (mark) => {
-            console.log(mark)
-            
-        })
-        index++;
-    } 
-  } catch (err) {
-    console.log(
-      `Filch has encountered an error while trying to mark attendance: ${err}`
-    );
+  const crrDate = `${year}-${month}-${day}`;
+  const dateRegEx = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+  let dateKey = (customDate) ? customDate : crrDate;
+  if (!dateRegEx.test(dateKey)) {
+    console.log("invalid date provided, use YYYY-MM-DD format");
     process.exit(1);
   }
+  console.log(`length of classObj: `, classObj.students.length);
+  let index = 0; // we'll use this to loop through students length
+  function mark() {
+    if (index < classObj.students.length) {
+      let currentStudent = classObj.students[index];
+      let isAlreadyMarked = classObj.students[index].attendance.some(entry => entry.date === dateKey);
+      if (isAlreadyMarked) {
+        console.log(`--- skipping ${currentStudent.name} (roll ${currentStudent.roll}) already marked for ${dateKey} as ${classObj.students[index].attendance[0].status} ---`);
+        index++; // go to next student, and skip this student
+        mark();
+      } else {
+        rl.question(`Mark attendance for ${classObj.students[index].name} Roll no: ${classObj.students[index].roll}: `, (ans) => {
+          if (ans.toLowerCase() === "p") {
+            classObj.students[index].attendance.push({
+              date:  dateKey,
+              status: "P"
+            })
+            index++; // increment the index 
+            mark();  // call marks recutsively
+          } else if (ans.toLowerCase() === "a") {
+            classObj.students[index].attendance.push({
+              date: dateKey,
+              status: "A"
+            });
+            index++;
+            mark(); // call marks recursively
+          } else {
+            console.log("Invalid input, use: P/A and try again.");
+            mark(); // call mark recursively
+          }
+        });
+      }
+    } else {
+      saveData(data);
+      console.log(`Attedance marked successfully`);
+      rl.close();
+    }
+  }
+  mark();
 }
+/*
+  one edge case identified is
+  what if a new student is added and the teacher marks attendance for
+  a date say 28-10-2025 and for this date roll number 1,2 already marked then the only left is
+  new student, therefore to prevent overpush we need to only push this data to the student whose 
+  attendance is not marked for this day
 
-markAttendance()
+  edge case cleared 
+*/
