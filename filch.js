@@ -97,24 +97,33 @@ function createClass() {
   }
 }
 // select a class before calling insert, leaderboard or mark function
-function selectClass(cls) {
+function selectClass() {
   // load data
   const data = loadData();
-  if (!data || !data.classes[cls]) {
-    console.log("Specified Class does not exists or the database is empty!");
+  if (!data || data.classes.length === 0) {
+    console.log("Error loading class database");
     console.log("use: filch create class <classNameSection>");
     process.exit(1);
   }
-  // insert currentClass into data.config.currentClass
-  try {
-    data.config.currentClass = cls;
-    saveData(data);
-    console.log(`Working on class: ${data.config.currentClass}`);
-  } catch (err) {
-    console.log(`Filch has encountered an error while selecting class ${err}`);
-    process.exit(1);
+  rl.question(`Please select a class [${Object.keys(data.classes)}]: `, (ans) => {
+      // insert currentClass into data.config.currentClass
+  if (ans) {
+    try {
+      data.config.currentClass = ans;
+      saveData(data);
+      console.log(`Working on class: ${data.config.currentClass}`);
+      console.log(`
+            --- to insert student: filch insert students
+            --- to mark attendance: filch mark attendance
+            --- to view leaderboard: filch view leaderboard
+        `)
+      process.exit(0);
+    } catch (err) {
+      console.log(`Filch has encountered an error while selecting class ${err}`);
+      process.exit(1);
+    }
   }
-  process.exit(0);
+  });
 }
 // after creating a class, insert students into it with roll numbers [{roll: , name: , attendance: {date: p/a}]
 function insertStudents() {
@@ -169,62 +178,6 @@ function insertStudents() {
     process.exit(1);
   }
 }
-function markAttendance(customDate) {
-  const data = loadData();
-  const cls = data.config.currentClass;
-  const classObj = data.classes[cls];
-  console.log(`classObject: `, classObj);
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1; // in js is 0 indexed
-  const day = now.getDate();
-  const crrDate = `${year}-${month}-${day}`;
-  const dateRegEx = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
-  let dateKey = (customDate) ? customDate : crrDate;
-  if (!dateRegEx.test(dateKey)) {
-    console.log("invalid date provided, use YYYY-MM-DD format");
-    process.exit(1);
-  }
-  console.log(`length of classObj: `, classObj.students.length);
-  let index = 0; // we'll use this to loop through students length
-  function mark() {
-    if (index < classObj.students.length) {
-      let currentStudent = classObj.students[index];
-      let isAlreadyMarked = classObj.students[index].attendance.some(entry => entry.date === dateKey);
-      if (isAlreadyMarked) {
-        console.log(`--- skipping ${currentStudent.name} (roll ${currentStudent.roll}) already marked for ${dateKey} as ${classObj.students[index].attendance[0].status} ---`);
-        index++; // go to next student, and skip this student
-        mark();
-      } else {
-        rl.question(`Mark attendance for ${classObj.students[index].name} Roll no: ${classObj.students[index].roll}: `, (ans) => {
-          if (ans.toLowerCase() === "p") {
-            classObj.students[index].attendance.push({
-              date:  dateKey,
-              status: "P"
-            })
-            index++; // increment the index 
-            mark();  // call marks recutsively
-          } else if (ans.toLowerCase() === "a") {
-            classObj.students[index].attendance.push({
-              date: dateKey,
-              status: "A"
-            });
-            index++;
-            mark(); // call marks recursively
-          } else {
-            console.log("Invalid input, use: P/A and try again.");
-            mark(); // call mark recursively
-          }
-        });
-      }
-    } else {
-      saveData(data);
-      console.log(`Attedance marked successfully`);
-      rl.close();
-    }
-  }
-  mark();
-}
 /*
   one edge case identified is
   what if a new student is added and the teacher marks attendance for
@@ -234,3 +187,177 @@ function markAttendance(customDate) {
 
   edge case cleared 
 */
+function markAttendance() {
+  const data = loadData();
+  const cls = data.config.currentClass;
+  const classObj = data.classes[cls];
+  // console.log(`classObject: `, classObj);
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // in js is 0 indexed
+  const day = now.getDate();
+  const crrDate = `${year}-${month}-${day}`;
+  const dateRegEx = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/;
+  // ask user for date for current day default is y
+  let dateKey = null;
+  if (dateKey === null) {
+    rl.question(`Please enter date for marking attendance [${crrDate}], type y for current date: `, (ans) => {
+      if (ans.toLowerCase() === "y") {
+        dateKey = crrDate;
+      } else {
+        dateKey = ans;
+      }
+      if (!dateRegEx.test(dateKey)) {
+        console.log("invalid date provided, use YYYY-MM-DD format");
+        process.exit(1);
+      }
+      // console.log(`length of classObj: `, classObj.students.length);
+      let index = 0; // we'll use this to loop through students length
+      function mark() {
+        if (index < classObj.students.length) {
+          let currentStudent = classObj.students[index];
+          let isAlreadyMarked = classObj.students[index].attendance.some(entry => entry.date === dateKey);
+          if (isAlreadyMarked) {
+            console.log(`--- skipping ${currentStudent.name} (roll ${currentStudent.roll}) already marked for ${dateKey} as ${classObj.students[index].attendance[0].status} ---`);
+            index++; // go to next student, and skip this student
+            mark();
+          } else {
+            rl.question(`Mark attendance for ${classObj.students[index].name} Roll no: ${classObj.students[index].roll}: `, (ans) => {
+              if (ans.toLowerCase() === "p") {
+                classObj.students[index].attendance.push({
+                  date:  dateKey,
+                  status: "P"
+                })
+                index++; // increment the index 
+                mark();  // call marks recutsively
+              } else if (ans.toLowerCase() === "a") {
+                classObj.students[index].attendance.push({
+                  date: dateKey,
+                  status: "A"
+                });
+                index++;
+                mark(); // call marks recursively
+              } else {
+                console.log("Invalid input, use: P/A and try again.");
+                mark(); // call mark recursively
+              }
+            });
+          }
+        } else {
+          saveData(data);
+          console.log(`Attedance marked successfully`);
+          rl.close();
+        }
+      }
+      mark();
+    });
+  }
+}
+// calculate leaderboard
+/*
+  objective: after 5 days of attendance mark,
+  calculate attedance percentage, then show top3 students
+*/
+function calculateLeaderboard() {
+  const data = loadData();
+  // to calculate leaderboard we need to select a class first
+  const cls = (data.config.currentClass !== null) ? data.config.currentClass : console.log("You've not selected any class!");
+  const classObj = data.classes[cls];
+  if (!cls) {
+    console.log(`${cls} does not exists`);
+    process.exit(1);
+  }
+  // console.log(classObj);
+  // now we need to filter out each attendance where status is present withing 5 day range?
+  // which range? from today or a specific date range?
+  // two cases 1. last 5 days 2. specific date range
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1; // in js is 0 indexed
+  const day = now.getDate();
+  const crrDate = `${year}-${month}-${day}`;
+  // first calculate leaders for last 5 days from now
+  const last5Days = [];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1; // in js is 0 indexed
+    const day = date.getDate();
+    const dateKey = `${year}-${month}-${day}`;
+    last5Days.push(dateKey);
+  }
+  // console.log(last5Days);
+  // filter names 
+  let names = [];
+  let attendance = [];
+  classObj.students.forEach(student => {
+    let count = 0;
+    student.attendance.forEach(entry => {
+      if (last5Days.includes(entry.date) && entry.status === "P") {
+        count++;
+      }
+    });
+    names.push(student.name);
+    attendance.push(count);
+  });
+  // console.log(names);
+  // console.log(attendance);
+  // calculate attendance percentage
+  let percentage = [];
+  attendance.forEach(count => {
+    percentage.push((count / 5) * 100);
+  });
+  // we need to map percentage with names in such a way to only get 3 name arrays with %
+  let leaderBoard = [];
+  for (let i = 0; i < 3; i++) {
+    let max = 0;
+    let maxIndex = 0;
+    for (let j = 0; j < percentage.length; j++) {
+      if (percentage[j] > max) {
+        max = percentage[j];
+        maxIndex = j;
+      }
+    }
+    leaderBoard.push({
+      name: names[maxIndex],
+      percentage: max
+    });
+    names.splice(maxIndex, 1);
+    percentage.splice(maxIndex, 1);
+  }
+  // printing leaders
+  console.log(`
+    ------- LEADER'S OF THE WEEK -------
+    ${leaderBoard[0].name} - ${leaderBoard[0].percentage}%
+    ${leaderBoard[1].name} - ${leaderBoard[1].percentage}%
+    ${leaderBoard[2].name} - ${leaderBoard[2].percentage}%
+    `);
+}
+
+// now before calculating leaderboard need to implement cmd commands
+function main() {
+  // create commands arguments
+  const cmd = [argv[2], argv[3], argv[1]];
+  switch (true) {
+    case (cmd[0] === "create" && cmd[1] === "class"):
+                  createClass();
+                  break;
+    case (cmd[0] === "select" && cmd[1] === "class"):
+                  selectClass();
+                  break;
+    case (cmd[0] === "insert" && cmd[1] === "students"):
+                  insertStudents();
+                  break;
+    case (cmd[0] === "mark" && cmd[1] === "att"):
+                  markAttendance();
+                  break;
+    case (cmd[0] === "view" && cmd[1] === "leaders"): 
+                  calculateLeaderboard();
+                  break;
+    default: 
+            console.log("Invalid command");
+            process.exit(1);
+  }
+}
+main();
